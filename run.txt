@@ -1,0 +1,16 @@
+docker compose -f docker/docker-compose.yml down
+docker compose -f docker/docker-compose.yml up solace -d
+python app/cli/interactive_voice_solace.py --text --mqtt
+bank/>, ivr/>, >
+
+Indonesian Queries
+{
+    Kartu saya hilang, tolong diblokir,
+    4567890123456789,
+    123456
+}
+Blokir kartu 4567890123456789 OTP 000000
+
+Transaksi tanggal 25 September 2026 rekening 1234567890
+
+Cek 5 transaksi terakhir untuk 1234567890

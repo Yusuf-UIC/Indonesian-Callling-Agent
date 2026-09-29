@@ -1,0 +1,193 @@
+# docker-compose.gpu.yml - GPU-enabled Docker Compose for Indonesia IVR Speech AI
+# Optimized for cloud GPU instances (RunPod, AWS EC2 G5/P4, NVIDIA A100/L40S)
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # Solace PubSub+ Standard Message Broker
+  # =============================================================================
+  solace:
+    image: solace/solace-pubsub-standard:latest
+    container_name: solace-broker
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 0
+              capabilities: [gpu]
+    ports:
+      - "55555:55555"   # SMF (Solace Message Format) - for applications
+      - "8008:8008"     # SEMP v2 (Management API)
+      - "1883:1883"     # MQTT
+      - "8000:8000"     # WebSocket
+      - "5672:5672"     # AMQP
+      - "9000:9000"     # REST
+      - "2222:2222"     # SSH (management)
+    environment:
+      - username_admin_globalaccesslevel=admin
+      - username_admin_password=admin
+      - system_scaling_maxconnectioncount=100
+    volumes:
+      - solace_data:/usr/sw/jail
+      - solace_config:/usr/sw/config
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8008/SEMP/v2/config/msgVpns/default"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - indonesia-ivr-network
+
+  # =============================================================================
+  # Indonesia IVR GPU Service
+  # =============================================================================
+  indonesia-ivr-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu
+    container_name: indonesia-ivr-gpu
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - SOLACE_HOST=solace
+      - SOLACE_PORT=55555
+      - SOLACE_USERNAME=admin
+      - SOLACE_PASSWORD=admin
+      - SOLACE_VPN=default
+      - SOLACE_MQTT_HOST=solace
+      - SOLACE_MQTT_PORT=1883
+      - SOLACE_MQTT_USERNAME=admin
+      - SOLACE_MQTT_PASSWORD=admin
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=11434
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    volumes:
+      - .:/app
+      - hf_cache:/root/.cache/huggingface
+      - torch_cache:/root/.cache/torch
+    depends_on:
+      solace:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    networks:
+      - indonesia-ivr-network
+    deploy:
+      resources:
+        limits:
+          memory: 16G
+        reservations:
+          memory: 8G
+
+  # =============================================================================
+  # Ollama Local LLM Service (for local LLM inference)
+  # =============================================================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-llm
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_PORT=11434
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - indonesia-ivr-network
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+
+  # =============================================================================
+  # Mock Banking API (for development/testing)
+  # =============================================================================
+  mock-banking-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mock-banking-api
+    ports:
+      - "8000:8000"
+    environment:
+      - SOLACE_HOST=solace
+      - SOLACE_PORT=55555
+      - SOLACE_USERNAME=admin
+      - SOLACE_PASSWORD=admin
+      - SOLACE_VPN=default
+    volumes:
+      - .:/app
+    depends_on:
+      solace:
+        condition: service_healthy
+    networks:
+      - indonesia-ivr-network
+    command: python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  # =============================================================================
+  # Optional: NGINX Reverse Proxy (for production)
+  # =============================================================================
+  nginx:
+    image: nginx:alpine
+    container_name: indonesia-ivr-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - indonesia-ivr-gpu
+      - mock-banking-api
+    networks:
+      - indonesia-ivr-network
+    profiles:
+      - production
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  indonesia-ivr-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  solace_data:
+  solace_config:
+  hf_cache:
+  torch_cache:
+  ollama_data:

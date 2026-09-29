@@ -1,0 +1,6 @@
+[console_scripts]
+ivr-agent = app.services.agent_solace:main
+ivr-api = app.main:app
+ivr-consumer = app.services.banking_consumer:main
+ivr-text = app.cli.interactive_voice_solace:main
+ivr-voice = app.cli.interactive_voice_solace:main

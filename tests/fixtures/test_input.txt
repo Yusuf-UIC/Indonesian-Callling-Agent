@@ -1,0 +1,2 @@
+cek saldo rekening 1234567890
+exit

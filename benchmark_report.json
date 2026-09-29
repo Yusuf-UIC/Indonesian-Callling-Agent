@@ -1,0 +1,416 @@
+{
+  "summary": {
+    "total_tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "pass_rate": "100.0%"
+  },
+  "sla_targets": {
+    "vad_latency_ms": 50.0,
+    "stt_latency_ms": 300.0,
+    "solace_latency_ms": 25.0,
+    "e2e_latency_ms": 800.0,
+    "wer_threshold": "15%"
+  },
+  "latency_statistics": {
+    "vad_ms": [
+      1.803200000722427,
+      23.55639999950654,
+      17.233200000191573,
+      13.032899998506764
+    ],
+    "stt_ms": [
+      0.0005000001692678779,
+      0.0007999988156370819,
+      0.0007999988156370819,
+      0.000700001692166552
+    ],
+    "solace_ms": [
+      12.051199999405071,
+      0.17289999959757552,
+      0.08369999704882503,
+      0.055900000006658956,
+      0.06170000051497482,
+      0.8275000000139698,
+      0.07230000119307078,
+      0.04859999899053946,
+      0.05089999831398018,
+      0.046299999667098746,
+      0.1247000000148546,
+      0.08919999891077168,
+      0.13580000086221844,
+      0.11359999916749075,
+      0.10690000272006728,
+      0.5665999997290783,
+      0.3144000002066605,
+      0.33489999987068586,
+      0.31519999902229756,
+      0.23290000171982683,
+      0.6986000007600524,
+      0.6006999974488281,
+      0.7891999994171783,
+      0.8191000015358441
+    ],
+    "e2e_ms": [
+      105.657500000234,
+      41.85680000227876,
+      37.63229999822215,
+      51.19469999772264,
+      36.6254000000481,
+      38.38349999932689,
+      33.779699999286095,
+      31.14619999905699,
+      34.78199999881326,
+      36.75130000192439,
+      51.62400000335765,
+      68.29809999544523,
+      66.58320000133244,
+      63.05460000294261
+    ],
+    "wer": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "latency_summary": {
+    "vad_ms": {
+      "count": 4,
+      "mean": 13.906424999731826,
+      "median": 15.133049999349169,
+      "p95": 22.60791999960929,
+      "min": 1.803200000722427,
+      "max": 23.55639999950654
+    },
+    "stt_ms": {
+      "count": 4,
+      "mean": 0.0006999998731771484,
+      "median": 0.0007500002539018169,
+      "p95": 0.0007999988156370819,
+      "min": 0.0005000001692678779,
+      "max": 0.0007999988156370819
+    },
+    "solace_ms": {
+      "count": 24,
+      "mean": 0.7796999998390675,
+      "median": 0.15435000022989698,
+      "p95": 0.826240000242251,
+      "min": 0.046299999667098746,
+      "max": 12.051199999405071
+    },
+    "e2e_ms": {
+      "count": 14,
+      "mean": 49.812092857142225,
+      "median": 40.12015000080282,
+      "p95": 81.37388999712128,
+      "min": 31.14619999905699,
+      "max": 105.657500000234
+    },
+    "wer": {
+      "count": 4,
+      "mean": 0.0,
+      "median": 0.0,
+      "p95": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    }
+  },
+  "sla_compliance": {
+    "vad": true,
+    "stt": true,
+    "solace": true,
+    "e2e": true,
+    "wer": true
+  },
+  "detailed_results": [
+    {
+      "test": "intent_classification_check_balance",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.0,
+        "e2e_ms": 105.657500000234
+      },
+      "intent": {
+        "expected": "check_balance",
+        "detected": "check_balance"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "intent_classification_check_balance",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.0,
+        "e2e_ms": 41.85680000227876
+      },
+      "intent": {
+        "expected": "check_balance",
+        "detected": "check_balance"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "intent_classification_check_balance",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.0,
+        "e2e_ms": 37.63229999822215
+      },
+      "intent": {
+        "expected": "check_balance",
+        "detected": "check_balance"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "intent_classification_block_card",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.0,
+        "e2e_ms": 51.19469999772264
+      },
+      "intent": {
+        "expected": "block_card",
+        "detected": "block_card"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "intent_classification_block_card",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.0,
+        "e2e_ms": 36.6254000000481
+      },
+      "intent": {
+        "expected": "block_card",
+        "detected": "block_card"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "intent_classification_transaction_history",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.0,
+        "e2e_ms": 38.38349999932689
+      },
+      "intent": {
+        "expected": "transaction_history",
+        "detected": "transaction_history"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "intent_classification_transaction_history",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.0,
+        "e2e_ms": 33.779699999286095
+      },
+      "intent": {
+        "expected": "transaction_history",
+        "detected": "transaction_history"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "intent_classification_greeting",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.0,
+        "e2e_ms": 31.14619999905699
+      },
+      "intent": {
+        "expected": "greeting",
+        "detected": "greeting"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "intent_classification_help",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.0,
+        "e2e_ms": 34.78199999881326
+      },
+      "intent": {
+        "expected": "help",
+        "detected": "help"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "intent_classification_unknown",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.0,
+        "e2e_ms": 36.75130000192439
+      },
+      "intent": {
+        "expected": "unknown",
+        "detected": "unknown"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "solace_balance",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 2.485079999314621,
+        "e2e_ms": 2.485079999314621
+      },
+      "intent": {
+        "expected": null,
+        "detected": null
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "solace_transactions",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.2091199996357318,
+        "e2e_ms": 0.2091199996357318
+      },
+      "intent": {
+        "expected": null,
+        "detected": null
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "solace_block_card",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.11404000033508055,
+        "e2e_ms": 0.11404000033508055
+      },
+      "intent": {
+        "expected": null,
+        "detected": null
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "solace_error",
+      "success": true,
+      "metrics": {
+        "vad_ms": 0.0,
+        "stt_ms": 0.0,
+        "solace_ms": 0.3528000001097098,
+        "e2e_ms": 0.3528000001097098
+      },
+      "intent": {
+        "expected": null,
+        "detected": null
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "e2e_check_balance",
+      "success": true,
+      "metrics": {
+        "vad_ms": 1.803200000722427,
+        "stt_ms": 0.0005000001692678779,
+        "solace_ms": 0.6986000007600524,
+        "e2e_ms": 51.62400000335765
+      },
+      "intent": {
+        "expected": "check_balance",
+        "detected": "check_balance"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "e2e_check_balance",
+      "success": true,
+      "metrics": {
+        "vad_ms": 23.55639999950654,
+        "stt_ms": 0.0007999988156370819,
+        "solace_ms": 0.6006999974488281,
+        "e2e_ms": 68.29809999544523
+      },
+      "intent": {
+        "expected": "check_balance",
+        "detected": "check_balance"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "e2e_block_card",
+      "success": true,
+      "metrics": {
+        "vad_ms": 17.233200000191573,
+        "stt_ms": 0.0007999988156370819,
+        "solace_ms": 0.7891999994171783,
+        "e2e_ms": 66.58320000133244
+      },
+      "intent": {
+        "expected": "block_card",
+        "detected": "block_card"
+      },
+      "wer": 0.0,
+      "error": null
+    },
+    {
+      "test": "e2e_transaction_history",
+      "success": true,
+      "metrics": {
+        "vad_ms": 13.032899998506764,
+        "stt_ms": 0.000700001692166552,
+        "solace_ms": 0.8191000015358441,
+        "e2e_ms": 63.05460000294261
+      },
+      "intent": {
+        "expected": "transaction_history",
+        "detected": "transaction_history"
+      },
+      "wer": 0.0,
+      "error": null
+    }
+  ]
+}
