@@ -523,8 +523,16 @@ async def create_solace_client(
         password = os.getenv("SOLACE_MQTT_PASSWORD", "admin")
         
         client = MQTTSolaceClient(host, port, username, password)
-        await client.connect()
-        return client
+        try:
+            await client.connect()
+            return client
+        except (ConnectionRefusedError, OSError, ConnectionError) as e:
+            logger.warning(f"Could not connect to MQTT broker at {host}:{port} ({e}). Falling back to MockSolaceClient.")
+            print(f"\n[Warning] Could not connect to MQTT broker at {host}:{port} ({e}).")
+            print("[Info] Falling back to in-memory MockSolaceClient for offline operation.\n")
+            mock_client = MockSolaceClient()
+            await mock_client.connect()
+            return mock_client
     else:
         if not SOLACE_AVAILABLE:
             raise RuntimeError("Solace Python API not installed. Install with: pip install solace-messaging")
@@ -535,8 +543,16 @@ async def create_solace_client(
         vpn = os.getenv("SOLACE_VPN", "default")
         
         client = SolaceClient(host, port, username, password, vpn)
-        await client.connect()
-        return client
+        try:
+            await client.connect()
+            return client
+        except (ConnectionRefusedError, OSError, ConnectionError, Exception) as e:
+            logger.warning(f"Could not connect to Solace broker at {host}:{port} ({e}). Falling back to MockSolaceClient.")
+            print(f"\n[Warning] Could not connect to Solace broker at {host}:{port} ({e}).")
+            print("[Info] Falling back to in-memory MockSolaceClient for offline operation.\n")
+            mock_client = MockSolaceClient()
+            await mock_client.connect()
+            return mock_client
 
 
 async def main():

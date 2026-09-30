@@ -1,0 +1,621 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Indonesia IVR Speech AI & Telephony Gateway",
+    "description": "Mock API & Twilio Media Stream Gateway untuk layanan perbankan Indonesia IVR Speech AI",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/banking/balance": {
+      "post": {
+        "tags": [
+          "Banking"
+        ],
+        "summary": "Cek Saldo Rekening",
+        "description": "Mengembalikan saldo rekening nasabah dalam Rupiah",
+        "operationId": "check_balance_api_v1_banking_balance_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BalanceEnquiryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceEnquiryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/banking/transactions": {
+      "post": {
+        "tags": [
+          "Banking"
+        ],
+        "summary": "Daftar Transaksi",
+        "description": "Mengembalikan daftar transaksi rekening nasabah",
+        "operationId": "list_transactions_api_v1_banking_transactions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransactionListRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/banking/block-card": {
+      "post": {
+        "tags": [
+          "Banking"
+        ],
+        "summary": "Blokir Kartu",
+        "description": "Memblokir kartu ATM/Debit/Kredit nasabah",
+        "operationId": "block_card_api_v1_banking_block_card_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CardBlockRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardBlockResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhook/voice": {
+      "post": {
+        "tags": [
+          "Telephony"
+        ],
+        "summary": "Twilio Voice Webhook",
+        "description": "Handle incoming Twilio voice webhook.\n\nReceives incoming call notifications from Twilio and returns TwiML\nto connect the call to the Media Stream WebSocket.",
+        "operationId": "twilio_voice_webhook_webhook_voice_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws/telephony": {
+      "get": {
+        "summary": "Twilio Media Stream WebSocket Endpoint",
+        "description": "WebSocket endpoint for real-time bi-directional audio streaming from Twilio Media Streams.\n\n**Audio Format:**\n- Input: 8kHz mu-law base64 encoded audio frames\n- Pipeline: 16kHz linear PCM audio + Silero VAD + Speech-to-Text\n- Output: 8kHz mu-law base64 encoded TTS audio frames",
+        "tags": [
+          "Telephony"
+        ],
+        "responses": {
+          "101": {
+            "description": "Switching Protocols - WebSocket Upgrade Success"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountType": {
+        "type": "string",
+        "enum": [
+          "savings",
+          "checking",
+          "credit"
+        ],
+        "title": "AccountType"
+      },
+      "BalanceEnquiryRequest": {
+        "properties": {
+          "account_number": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 10,
+            "title": "Account Number",
+            "description": "Nomor rekening nasabah"
+          },
+          "account_type": {
+            "$ref": "#/components/schemas/AccountType",
+            "description": "Tipe rekening",
+            "default": "savings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_number"
+        ],
+        "title": "BalanceEnquiryRequest"
+      },
+      "BalanceEnquiryResponse": {
+        "properties": {
+          "account_number": {
+            "type": "string",
+            "title": "Account Number"
+          },
+          "account_type": {
+            "$ref": "#/components/schemas/AccountType"
+          },
+          "balance": {
+            "type": "integer",
+            "title": "Balance",
+            "description": "Saldo dalam satuan Rupiah (tanpa desimal)"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "description": "Mata uang",
+            "default": "IDR"
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Updated",
+            "description": "Waktu terakhir update saldo"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Status response",
+            "default": "success"
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_number",
+          "account_type",
+          "balance"
+        ],
+        "title": "BalanceEnquiryResponse"
+      },
+      "CardBlockRequest": {
+        "properties": {
+          "card_number": {
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 16,
+            "title": "Card Number",
+            "description": "Nomor kartu 16 digit"
+          },
+          "identity_otp": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 6,
+            "title": "Identity Otp",
+            "description": "OTP verifikasi 6 digit"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "description": "Alasan pemblokiran: lost_stolen, fraud, damaged, other",
+            "default": "lost_stolen"
+          }
+        },
+        "type": "object",
+        "required": [
+          "card_number",
+          "identity_otp"
+        ],
+        "title": "CardBlockRequest"
+      },
+      "CardBlockResponse": {
+        "properties": {
+          "card_number": {
+            "type": "string",
+            "title": "Card Number"
+          },
+          "blocked": {
+            "type": "boolean",
+            "title": "Blocked"
+          },
+          "block_reference": {
+            "type": "string",
+            "title": "Block Reference",
+            "description": "Nomor referensi pemblokiran"
+          },
+          "blocked_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Blocked At"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "card_number",
+          "blocked",
+          "block_reference",
+          "message"
+        ],
+        "title": "CardBlockResponse"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "error"
+          },
+          "error_code": {
+            "type": "string",
+            "title": "Error Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error_code",
+          "message"
+        ],
+        "title": "ErrorResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "TransactionItem": {
+        "properties": {
+          "transaction_id": {
+            "type": "string",
+            "title": "Transaction Id"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Date"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TransactionType"
+          },
+          "amount": {
+            "type": "integer",
+            "title": "Amount",
+            "description": "Jumlah transaksi dalam Rupiah"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "balance_after": {
+            "type": "integer",
+            "title": "Balance After",
+            "description": "Saldo setelah transaksi"
+          }
+        },
+        "type": "object",
+        "required": [
+          "transaction_id",
+          "date",
+          "type",
+          "amount",
+          "description",
+          "balance_after"
+        ],
+        "title": "TransactionItem"
+      },
+      "TransactionListRequest": {
+        "properties": {
+          "account_number": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 10,
+            "title": "Account Number"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "default": 10
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_number"
+        ],
+        "title": "TransactionListRequest"
+      },
+      "TransactionListResponse": {
+        "properties": {
+          "account_number": {
+            "type": "string",
+            "title": "Account Number"
+          },
+          "transactions": {
+            "items": {
+              "$ref": "#/components/schemas/TransactionItem"
+            },
+            "type": "array",
+            "title": "Transactions"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "success"
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_number",
+          "transactions",
+          "total_count"
+        ],
+        "title": "TransactionListResponse"
+      },
+      "TransactionType": {
+        "type": "string",
+        "enum": [
+          "debit",
+          "credit"
+        ],
+        "title": "TransactionType"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

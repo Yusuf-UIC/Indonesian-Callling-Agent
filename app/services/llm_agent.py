@@ -114,8 +114,9 @@ class LLMResponse:
 
 class LLMAgentSolace:
     """
-    LLM-Powered Reasoning Agent supporting Gemini (Google AI Studio), Groq, OpenRouter,
-    and local vLLM, executing tool calls over the Solace Event Backbone.
+    LLM-Powered Reasoning Agent supporting Gemini, Groq, NVIDIA NIM, Cloudflare,
+    and local vLLM. Tool calls are routed through SAM Orchestrator Agent over the
+    Solace Event Backbone.
     """
     def __init__(
         self,
@@ -123,23 +124,63 @@ class LLMAgentSolace:
         provider: Optional[str] = None,
         api_key: Optional[str] = None,
         model: Optional[str] = None,
+        use_sam: bool = True,
     ):
         self.solace_client = solace_client
         self.provider = (provider or os.getenv("LLM_PROVIDER", "gemini")).lower()
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GROQ_API_KEY")
+        self.use_sam = use_sam
         
-        if self.provider == "gemini":
+        if self.provider == "nvidia_nim":
+            self.api_key = api_key or os.getenv("NVIDIA_NIM_API_KEY")
+            self.model = model or os.getenv("NVIDIA_NIM_MODEL", "meta/llama-3.3-70b-instruct")
+            self.base_url = os.getenv("NVIDIA_NIM_BASE_URL", "https://integrate.api.nvidia.com/v1")
+        elif self.provider == "gemini":
+            self.api_key = api_key or os.getenv("GEMINI_API_KEY")
             self.model = model or os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
             self.base_url = "https://generativelanguage.googleapis.com/v1beta/openai"
         elif self.provider == "groq":
+            self.api_key = api_key or os.getenv("GROQ_API_KEY")
             self.model = model or os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
             self.base_url = "https://api.groq.com/openai/v1"
+        elif self.provider == "cloudflare":
+            self.api_key = api_key or os.getenv("CLOUDFLARE_API_TOKEN")
+            account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
+            self.model = model or os.getenv("CLOUDFLARE_MODEL", "@cf/meta/llama-3.1-8b-instruct")
+            self.base_url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1"
         else:
+            self.api_key = api_key or os.getenv("OPENAI_API_KEY")
             self.model = model or "gpt-3.5-turbo"
             self.base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 
-    async def _execute_solace_tool(self, tool_name: str, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute tool call over Solace MQTT/SMF Broker."""
+        # Initialize SAM Orchestrator if enabled
+        self.sam_orchestrator = None
+        if self.use_sam and solace_client:
+            from app.services.sam.orchestrator_agent import SAMOrchestratorAgent
+            self.sam_orchestrator = SAMOrchestratorAgent(solace_client=solace_client)
+            logger.info(f"[LLM Agent] SAM Orchestrator enabled (provider: {self.provider}, model: {self.model})")
+        else:
+            logger.info(f"[LLM Agent] Direct Solace mode (provider: {self.provider}, model: {self.model})")
+
+    async def _execute_tool(
+        self, tool_name: str, args: Dict[str, Any], session_id: str = "default"
+    ) -> Dict[str, Any]:
+        """
+        Execute tool call through SAM Orchestrator (multi-agent mesh) or direct Solace.
+        SAM routes: check_balance -> AccountAgent, block_card -> CardSecurityAgent.
+        """
+        # Route through SAM Orchestrator if available
+        if self.sam_orchestrator:
+            logger.info(f"[LLM Agent] Routing tool '{tool_name}' through SAM Orchestrator")
+            sam_response = await self.sam_orchestrator.route(
+                tool_name=tool_name,
+                tool_args=args,
+                session_id=session_id,
+            )
+            if sam_response.error:
+                return {"error": sam_response.error, **sam_response.payload}
+            return sam_response.payload
+
+        # Fallback: Direct Solace request-reply (no SAM mesh)
         if not self.solace_client:
             return {"error": "Solace client not connected"}
 
@@ -153,7 +194,8 @@ class LLMAgentSolace:
             return {"error": f"Unknown tool name: {tool_name}"}
 
         req_type, resp_type = topic_map[tool_name]
-        correlation_id = f"llm-{tool_name}-{int(httpx._utils.get_environment_proxies().keys().__len__())}"
+        import uuid
+        correlation_id = f"llm-{tool_name}-{uuid.uuid4().hex[:8]}"
         
         event = SolaceEvent(
             event_type=req_type,
@@ -162,7 +204,6 @@ class LLMAgentSolace:
         )
 
         try:
-            logger.info(f"[Solace LLM] Publishing tool request {req_type.value} with args {args}")
             response_event = await self.solace_client.request_reply(
                 event, resp_type.value, timeout=10.0
             )
@@ -177,10 +218,17 @@ class LLMAgentSolace:
         session_id: str = "default_cli_session",
         history: Optional[List[Dict[str, Any]]] = None
     ) -> LLMResponse:
-        """Process user input through Gemini/Groq LLM and execute Solace tools if requested."""
-        if not self.api_key or self.api_key == "your_gemini_api_key_here":
-            logger.warning("No valid API key provided for LLM. Falling back to default message.")
-            return LLMResponse(text="API key Gemini belum dikonfigurasi. Silakan isi GEMINI_API_KEY di file .env")
+        """Process user input through LLM and execute Solace tools via SAM mesh if requested."""
+        PLACEHOLDER_KEYS = {
+            "your_gemini_api_key_here",
+            "your_groq_api_key_here",
+            "your_nvidia_nim_api_key_here",
+            "your_cloudflare_api_token_here",
+            "your_openai_api_key_here",
+        }
+        if not self.api_key or self.api_key in PLACEHOLDER_KEYS:
+            logger.warning("No valid API key provided for LLM.")
+            return LLMResponse(text="API key belum dikonfigurasi. Silakan isi API key di file .env")
 
         # Build full message conversation context
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
@@ -221,12 +269,12 @@ class LLMAgentSolace:
                     except Exception:
                         tool_args = {}
 
-                    logger.info(f"[LLM Agent] Decided to call tool: {tool_name} with args {tool_args}")
+                    logger.info(f"[LLM Agent] Tool call: {tool_name}({tool_args})")
 
-                    # Execute Tool on Solace Backbone
-                    tool_result = await self._execute_solace_tool(tool_name, tool_args)
+                    # Execute Tool through SAM Orchestrator -> Domain Agent -> Solace Banking
+                    tool_result = await self._execute_tool(tool_name, tool_args, session_id)
 
-                    # Append Assistant tool request & Tool result to conversation for final synthesis
+                    # Append Assistant tool request & Tool result for final LLM synthesis
                     messages.append(choice)
                     messages.append({
                         "role": "tool",
@@ -235,7 +283,7 @@ class LLMAgentSolace:
                         "content": json.dumps(tool_result),
                     })
 
-                    # Second call to LLM to generate user-friendly response from tool result
+                    # Second LLM call to generate natural Indonesian response from tool result
                     synth_payload = {
                         "model": self.model,
                         "messages": messages,
@@ -263,3 +311,4 @@ class LLMAgentSolace:
             except Exception as e:
                 logger.error(f"[LLM Agent] API error: {e}")
                 return LLMResponse(text=f"Maaf, terjadi masalah koneksi ke layanan AI: {str(e)}")
+

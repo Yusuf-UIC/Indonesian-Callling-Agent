@@ -37,3 +37,6 @@ Thumbs.db
 # HuggingFace & model caches
 .cache/
 huggingface/
+
+SAM.md
+sam_integration_plan.md

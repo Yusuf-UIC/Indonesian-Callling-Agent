@@ -32,6 +32,9 @@ async def test_endpoints():
         print("\n" + "=" * 60)
         print("Testing Card Block")
         print("=" * 60)
+        # Reset card state for idempotent testing
+        from app.services.mock_bank import mock_banking_service
+        mock_banking_service.cards["4567890123456789"]["blocked"] = False
         response = await client.post(
             "/api/v1/banking/block-card",
             json={"card_number": "4567890123456789", "identity_otp": "123456", "reason": "lost_stolen"}

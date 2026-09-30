@@ -26,9 +26,10 @@ def test_banking_tools_schema():
 @pytest.mark.asyncio
 async def test_llm_agent_fallback_without_api_key():
     """Verify LLM agent responds gracefully when no API key is provided."""
-    agent = LLMAgentSolace(provider="gemini", api_key=None)
-    response = await agent.process("Halo")
-    assert "API key" in response.text or "dikondisikan" in response.text or "diperbarui" in response.text or "belum" in response.text
+    with patch.dict(os.environ, {"GEMINI_API_KEY": ""}):
+        agent = LLMAgentSolace(provider="gemini", api_key=None)
+        response = await agent.process("Halo")
+        assert "API key" in response.text or "dikondisikan" in response.text or "diperbarui" in response.text or "belum" in response.text
 
 
 @pytest.mark.asyncio
@@ -41,8 +42,8 @@ async def test_llm_agent_tool_execution():
         payload={"account_number": "1122334455", "balance": 850000, "status": "success"}
     )
 
-    agent = LLMAgentSolace(solace_client=mock_solace, provider="gemini", api_key="dummy_key")
-    result = await agent._execute_solace_tool("check_balance", {"account_number": "1122334455"})
+    agent = LLMAgentSolace(solace_client=mock_solace, provider="gemini", api_key="dummy_key", use_sam=False)
+    result = await agent._execute_tool("check_balance", {"account_number": "1122334455"})
 
     assert result["balance"] == 850000
     mock_solace.request_reply.assert_called_once()
